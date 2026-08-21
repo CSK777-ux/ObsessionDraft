@@ -6,7 +6,7 @@ const cors = require('cors');
 const app = express();
 
 // 1. Configuración de CORS segura (reemplaza 'https://tu-dominio.com' por el dominio real de tu tienda)
-const allowedOrigins = ['https://obsessiondraft.shop', 'obsessiondraft-production.up.railway.app'];
+const allowedOrigins = ['https://obsessiondraft.shop', 'https://obsessiondraft-production.up.railway.app'];
 app.use(cors({
     origin: function (origin, callback) {
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
@@ -75,5 +75,5 @@ app.post('/create-order', async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));

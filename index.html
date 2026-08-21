@@ -24,10 +24,10 @@
     </div>
     <!-- Header Section -->
     <header class="text-center py-16 px-6">
-        <h1 class="text-4xl md:text-6xl font-black mb-4">Transform Your Space Into <br><span
+        <h1 class="text-4xl md:text-6xl font-black mb-4 z-5">Transform Your Space Into <br><span
                 class="text-indigo-400">Deep Space.</span></h1>
-        <p class="text-slate-400 text-lg">The cutest aesthetic humidifier that doubles as a dreamy night light.</p>
-        <div class="absolute top-1 right-0 transform -translate-y-1 max-w-full h-auto">
+        <p class="text-slate-400 text-lg z-5">The cutest aesthetic humidifier that doubles as a dreamy night light.</p>
+        <div class="absolute top-1 right-0 transform -translate-y-1 max-w-full h-auto z-1">
             <img src="./img/astronaut-humidifier.png" alt="Astronaut Humidifier" class="max-w-full h-auto">
         </div>
     </header>
@@ -250,12 +250,19 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ productId: selectedProduct })
                     })
-                        .then(res => res.json())
-                        .then(data => data.id);
+                        .then(res => {
+                            if (!res.ok) throw new Error('Error en el servidor: ' + res.status);
+                            return res.json();
+                        })
+                        .then(data => data.id)
+                        .catch(err => {
+                            console.error("Fallo crítico en PayPal:", err);
+                            alert("Error al conectar con PayPal. Revisa la consola.");
+                        });
                 },
                 onApprove: function (data) {
-                    alert('¡Pago exitoso! ID de transacción: ' + data.orderID);
-                    closeCheckoutModal(); // Cierra suavemente tras el pago
+                    alert('¡Pago exitoso!');
+                    closeCheckoutModal();
                 }
             }).render('#paypal-button-container');
         }
