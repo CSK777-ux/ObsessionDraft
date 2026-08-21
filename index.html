@@ -194,135 +194,74 @@
     </footer>
 
     <script>
-        // Estado global del producto seleccionado
-        let selectedProduct = {
-            id: 'solo',
-            title: 'Solo Explorer - 1x Astronaut',
-            price: '29.99'
-        };
+        let selectedProduct = '';
 
-        const API_BASE_URL = 'https://obsessiondraft-production.up.railway.app';
-
+        // Función para abrir el modal suavemente
         function openCheckoutModal(productId, title, price) {
-            selectedProduct = {
-                id: productId || 'solo',
-                title: title || 'Solo Explorer - 1x Astronaut',
-                price: String(price || '29.99')
-            };
-
-            document.getElementById('modal-title').innerText = selectedProduct.title;
-            document.getElementById('modal-price').innerText = `$${selectedProduct.price} USD - Free Shipping`;
+            selectedProduct = productId;
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-price').innerText = `$${price} USD - Free Shipping`;
 
             const modal = document.getElementById('checkout-modal');
+
+            // 1. Quitamos 'hidden' para que el elemento exista y ocupe espacio
             modal.classList.remove('hidden');
 
-            void modal.offsetWidth; // Forzar reflow de CSS
+            // 2. Forzamos un reflow (truco para que la transición funcione al cambiar clases de golpe)
+            void modal.offsetWidth;
 
+            // 3. Agregamos las clases visibles para iniciar la animación
             modal.classList.remove('opacity-0', 'scale-95');
             modal.classList.add('opacity-100', 'scale-100');
 
+            // 4. Renderizamos el botón
+            document.getElementById('paypal-button-container').innerHTML = '';
             renderPayPalButton();
         }
 
+        // Función para cerrar el modal suavemente
         function closeCheckoutModal() {
             const modal = document.getElementById('checkout-modal');
+
+            // 1. Revertimos a las clases invisibles para iniciar la animación de salida
             modal.classList.remove('opacity-100', 'scale-100');
             modal.classList.add('opacity-0', 'scale-95');
 
+            // 2. Esperamos a que termine la transición (300ms) y ocultamos con 'hidden'
             setTimeout(() => {
                 modal.classList.add('hidden');
-                document.getElementById('paypal-button-container').innerHTML = '';
             }, 300);
         }
 
         function renderPayPalButton() {
-            const container = document.getElementById('paypal-button-container');
-            container.innerHTML = ''; // Limpieza previa
-
-            if (window.paypal) {
-                paypal.Buttons({
-                    createOrder: function () {
-                        return fetch(`${API_BASE_URL}/create-order`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                cart: [
-                                    {
-                                        name: selectedProduct.title,
-                                        price: selectedProduct.price,
-                                        quantity: 1
-                                    }
-                                ]
-                            })
-                        })
-                            .then(res => {
-                                if (!res.ok) throw new Error('Error en el servidor: ' + res.status);
-                                return res.json();
-                            })
-                            .then(data => {
-                                if (data.error) throw new Error(data.error);
-                                return data.id;
-                            })
-                            .catch(err => {
-                                console.error("Fallo al crear la orden:", err);
-                                alert("Error al conectar con la pasarela de pagos.");
-                            });
-                    },
-                    onApprove: function (data) {
-                        // CAPTURA REAL EN BACKEND: Notifica a Railway para procesar y cobrar el dinero
-                        return fetch(`${API_BASE_URL}/capture-order`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                orderID: data.orderID
-                            })
-                        })
-                            .then(res => res.json())
-                            .then(details => {
-                                if (details.error) {
-                                    alert('Hubo un problema al procesar la captura de tu pago.');
-                                    return;
-                                }
-                                alert('¡Pago completado con éxito! Gracias por tu compra.');
-                                closeCheckoutModal();
-                            })
-                            .catch(err => {
-                                console.error("Error al capturar la orden:", err);
-                                alert("Error al confirmar el pago.");
-                            });
-                    },
-                    onError: function (err) {
-                        console.error("Error en el flujo de PayPal:", err);
-                    }
-                }).render('#paypal-button-container');
-            }
+            paypal.Buttons({
+                createOrder: function () {
+                    return fetch('http://localhost:3000/create-order', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ productId: selectedProduct })
+                    })
+                        .then(res => res.json())
+                        .then(data => data.id);
+                },
+                onApprove: function (data) {
+                    alert('¡Pago exitoso! ID de transacción: ' + data.orderID);
+                    closeCheckoutModal(); // Cierra suavemente tras el pago
+                }
+            }).render('#paypal-button-container');
         }
 
-        // Modal listeners
-        document.addEventListener("DOMContentLoaded", function () {
-            const modalContainer = document.querySelector('#checkout-modal > div');
-            if (modalContainer) {
-                modalContainer.addEventListener('click', function (event) {
-                    event.stopPropagation();
-                });
-            }
-
-            const checkoutModal = document.getElementById('checkout-modal');
-            if (checkoutModal) {
-                checkoutModal.addEventListener('click', function () {
-                    closeCheckoutModal();
-                });
+        // Adicional: Cerrar modal si se hace clic fuera del contenido
+        document.getElementById('checkout-modal').addEventListener('click', function (event) {
+            if (event.target === this) {
+                closeCheckoutModal();
             }
         });
 
-        // Banner de Cookies
+        // --- Tu script de cookies previo ---
         document.addEventListener("DOMContentLoaded", function () {
             const banner = document.getElementById('cookie-banner');
-            if (banner && !localStorage.getItem('cookieConsent')) {
+            if (!localStorage.getItem('cookieConsent')) {
                 setTimeout(() => {
                     banner.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
                     banner.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
