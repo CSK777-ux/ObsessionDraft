@@ -216,39 +216,40 @@
             // 1. Quitamos 'hidden' para que el elemento exista y ocupe espacio
             modal.classList.remove('hidden');
 
-            // 2. Forzamos un reflow (truco para que la transición funcione al cambiar clases de golpe)
+            // 2. Forzamos un reflow
             void modal.offsetWidth;
 
             // 3. Agregamos las clases visibles para iniciar la animación
             modal.classList.remove('opacity-0', 'scale-95');
             modal.classList.add('opacity-100', 'scale-100');
 
-            // 4. Renderizamos el botón
-            document.getElementById('paypal-button-container').innerHTML = '';
-            renderPayPalButton();
+            // 4. Renderizamos el botón de forma segura con un pequeño retraso para asegurar el DOM
+            setTimeout(() => {
+                renderPayPalButton();
+            }, 100);
         }
 
         // Función para cerrar el modal suavemente
         function closeCheckoutModal() {
             const modal = document.getElementById('checkout-modal');
 
-            // 1. Revertimos a las clases invisibles para iniciar la animación de salida
+            // 1. Revertimos a las clases invisibles para la animación de salida
             modal.classList.remove('opacity-100', 'scale-100');
             modal.classList.add('opacity-0', 'scale-95');
 
-            // 2. Esperamos a que termine la transición (300ms) y ocultamos con 'hidden'
+            // 2. Limpiamos el contenedor del botón de PayPal
+            document.getElementById('paypal-button-container').innerHTML = '';
+
+            // 3. Esperamos a que termine la transición y ocultamos con 'hidden'
             setTimeout(() => {
                 modal.classList.add('hidden');
             }, 300);
         }
 
-        let paypalButtonInstance = null;
-
         function renderPayPalButton() {
             const container = document.getElementById('paypal-button-container');
-            container.innerHTML = ''; // Limpiamos el contenedor antes de renderizar
+            container.innerHTML = ''; // Limpiamos preventivamente
 
-            // Verificamos que el SDK de PayPal esté cargado correctamente
             if (window.paypal) {
                 paypal.Buttons({
                     createOrder: function () {
@@ -258,26 +259,24 @@
                             body: JSON.stringify({ productId: selectedProduct })
                         })
                             .then(res => {
-                                if (!res.ok) {
-                                    throw new Error('El servidor respondió con error: ' + res.status);
-                                }
+                                if (!res.ok) throw new Error('Error en el servidor: ' + res.status);
                                 return res.json();
                             })
                             .then(data => data.id)
                             .catch(err => {
-                                console.error("Error en la pasarela:", err);
-                                alert("Hubo un problema al conectar con el servidor de pagos.");
+                                console.error("Fallo al crear la orden:", err);
+                                alert("Error al conectar con la pasarela de pagos.");
                             });
                     },
                     onApprove: function (data) {
-                        alert('¡Pago exitoso! ID: ' + data.orderID);
+                        alert('¡Pago exitoso! ID de transacción: ' + data.orderID);
                         closeCheckoutModal();
                     }
                 }).render('#paypal-button-container');
             }
         }
 
-        // Adicional: Cerrar modal si se hace clic fuera del contenido
+        // Cerrar modal si se hace clic fuera del contenido
         document.getElementById('checkout-modal').addEventListener('click', function (event) {
             if (event.target === this) {
                 closeCheckoutModal();
