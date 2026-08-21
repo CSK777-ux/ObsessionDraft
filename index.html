@@ -194,7 +194,7 @@
     </footer>
 
     <script>
-        // Estado global del producto seleccionado (valores por defecto de respaldo)
+        // Estado global del producto seleccionado
         let selectedProduct = {
             id: 'solo',
             title: 'Solo Explorer - 1x Astronaut',
@@ -204,7 +204,6 @@
         const API_BASE_URL = 'https://obsessiondraft-production.up.railway.app';
 
         function openCheckoutModal(productId, title, price) {
-            // Asignación explícita para evitar valores vacíos
             selectedProduct = {
                 id: productId || 'solo',
                 title: title || 'Solo Explorer - 1x Astronaut',
@@ -243,7 +242,8 @@
             if (window.paypal) {
                 paypal.Buttons({
                     createOrder: function () {
-                        return fetch('https://obsessiondraft-production.up.railway.app/create-order', {
+                        // DATO DINÁMICO: Enviamos los datos reales del producto seleccionado
+                        return fetch(`${API_BASE_URL}/create-order`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -251,8 +251,8 @@
                             body: JSON.stringify({
                                 cart: [
                                     {
-                                        name: "Solo Explorer - 1x Astronaut",
-                                        price: "29.99",
+                                        name: selectedProduct.title,
+                                        price: selectedProduct.price,
                                         quantity: 1
                                     }
                                 ]
@@ -264,17 +264,37 @@
                             })
                             .then(data => {
                                 if (data.error) throw new Error(data.error);
-                                return data.id; // <--- OBLIGATORIO: PayPal necesita solo la cadena del ID
+                                return data.id;
                             })
-
                             .catch(err => {
                                 console.error("Fallo al crear la orden:", err);
                                 alert("Error al conectar con la pasarela de pagos.");
                             });
                     },
                     onApprove: function (data) {
-                        alert('¡Pago exitoso! ID de transacción: ' + data.orderID);
-                        closeCheckoutModal();
+                        // CAPTURA REAL EN BACKEND: Notifica a Railway para procesar y cobrar el dinero
+                        return fetch(`${API_BASE_URL}/capture-order`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                orderID: data.orderID
+                            })
+                        })
+                            .then(res => res.json())
+                            .then(details => {
+                                if (details.error) {
+                                    alert('Hubo un problema al procesar la captura de tu pago.');
+                                    return;
+                                }
+                                alert('¡Pago completado con éxito! Gracias por tu compra.');
+                                closeCheckoutModal();
+                            })
+                            .catch(err => {
+                                console.error("Error al capturar la orden:", err);
+                                alert("Error al confirmar el pago.");
+                            });
                     },
                     onError: function (err) {
                         console.error("Error en el flujo de PayPal:", err);
@@ -283,7 +303,7 @@
             }
         }
 
-        // Prevenir que el modal se cierre al hacer clic adentro del cuadro blanco/oscuro
+        // Modal listeners
         document.addEventListener("DOMContentLoaded", function () {
             const modalContainer = document.querySelector('#checkout-modal > div');
             if (modalContainer) {
