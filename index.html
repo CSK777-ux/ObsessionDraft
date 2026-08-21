@@ -242,29 +242,39 @@
             }, 300);
         }
 
+        let paypalButtonInstance = null;
+
         function renderPayPalButton() {
-            paypal.Buttons({
-                createOrder: function () {
-                    return fetch('https://obsessiondraft-production.up.railway.app/create-order', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ productId: selectedProduct })
-                    })
-                        .then(res => {
-                            if (!res.ok) throw new Error('Error en el servidor: ' + res.status);
-                            return res.json();
+            const container = document.getElementById('paypal-button-container');
+            container.innerHTML = ''; // Limpiamos el contenedor antes de renderizar
+
+            // Verificamos que el SDK de PayPal esté cargado correctamente
+            if (window.paypal) {
+                paypal.Buttons({
+                    createOrder: function () {
+                        return fetch('https://obsessiondraft-production.up.railway.app/create-order', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ productId: selectedProduct })
                         })
-                        .then(data => data.id)
-                        .catch(err => {
-                            console.error("Fallo crítico en PayPal:", err);
-                            alert("Error al conectar con PayPal. Revisa la consola.");
-                        });
-                },
-                onApprove: function (data) {
-                    alert('¡Pago exitoso!');
-                    closeCheckoutModal();
-                }
-            }).render('#paypal-button-container');
+                            .then(res => {
+                                if (!res.ok) {
+                                    throw new Error('El servidor respondió con error: ' + res.status);
+                                }
+                                return res.json();
+                            })
+                            .then(data => data.id)
+                            .catch(err => {
+                                console.error("Error en la pasarela:", err);
+                                alert("Hubo un problema al conectar con el servidor de pagos.");
+                            });
+                    },
+                    onApprove: function (data) {
+                        alert('¡Pago exitoso! ID: ' + data.orderID);
+                        closeCheckoutModal();
+                    }
+                }).render('#paypal-button-container');
+            }
         }
 
         // Adicional: Cerrar modal si se hace clic fuera del contenido
