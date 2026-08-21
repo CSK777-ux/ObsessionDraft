@@ -7,7 +7,7 @@
     <title>OD | Astronaut Space Humidifier</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script
-        src="https://www.paypal.com/sdk/js?client-id=BAARBKddGJnnpCiHgEIdyJmkq-OAj8ioYTlCdiLSxjLsiQoy3FJFGIsJ_KEnKQLMxITep1Fu9Sv5K-wBFY&currency=USD"></script>
+        src="https://www.paypal.com/sdk/js?client-id=BAARBKddGJnnpCiHgEIdyJmkq-OAj8ioYTlCdiLSxjLsiQoy3FJFGIsJ_KEnKQLMxITep1Fu9Sv5K-wBFY&components=buttons"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap');
 
@@ -188,7 +188,6 @@
                     <span class="bg-slate-800 px-2 py-1 rounded text-[10px]">VISA</span>
                     <span class="bg-slate-800 px-2 py-1 rounded text-[10px]">MC</span>
                     <span class="bg-slate-800 px-2 py-1 rounded text-[10px]">PAYPAL</span>
-                    <span class="bg-slate-800 px-2 py-1 rounded text-[10px]">BINANCE</span>
                 </div>
             </div>
         </div>
@@ -202,6 +201,9 @@
         </div>
 
     </footer>
+    <div id="cookie-banner" class="hidden fixed bottom-0 w-full bg-gray-900 text-white p-4 z-50">
+        <!-- Contenido del banner -->
+    </div>
     <script>
         let selectedProduct = '';
 
@@ -250,56 +252,81 @@
             const container = document.getElementById('paypal-button-container');
             container.innerHTML = ''; // Limpiamos preventivamente
 
-            if (window.paypal) {
-                paypal.Buttons({
-                    createOrder: function () {
-                        return fetch('https://obsessiondraft-production.up.railway.app/create-order', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ productId: selectedProduct })
+            // Determinar si estamos probando localmente o en producción en Railway
+            const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? 'http://localhost:3000'
+                : 'https://obsessiondraft-production.up.railway.app';
+
+            paypal.Buttons({
+                createOrder: function () {
+                    return fetch(`${API_BASE_URL}/create-order`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            amount: '29.99', // Ajusta dinámicamente según el producto seleccionado
+                            title: 'Solo Explorer - 1x Astronaut'
                         })
-                            .then(res => {
-                                if (!res.ok) throw new Error('Error en el servidor: ' + res.status);
-                                return res.json();
-                            })
-                            .then(data => data.id)
-                            .catch(err => {
-                                console.error("Fallo al crear la orden:", err);
-                                alert("Error al conectar con la pasarela de pagos.");
-                            });
-                    },
-                    onApprove: function (data) {
-                        alert('¡Pago exitoso! ID de transacción: ' + data.orderID);
-                        closeCheckoutModal();
-                    }
-                }).render('#paypal-button-container');
+                    })
+                        .then(res => {
+                            if (!res.ok) throw new Error('Error al generar la orden en el servidor');
+                            return res.json();
+                        })
+                        .then(data => data.id);
+                },
+
+                onApprove: function (data) {
+                    // Este paso es EL QUE FALTABA: cobra el dinero una vez aprobado por el cliente
+                    return fetch(`${API_BASE_URL}/capture-order`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ orderID: data.orderID })
+                    })
+                        .then(res => res.json())
+                        .then(details => {
+                            if (details.status === 'COMPLETED') {
+                                alert('¡Pago completado con éxito! Gracias por tu compra.');
+                                // Aquí cierras el modal o rediriges a una página de agradecimiento
+                            } else {
+                                alert('El pago no pudo procesarse completamente.');
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Error al capturar la orden:', err);
+                            alert('Ocurrió un error al procesar el pago.');
+                        });
+                },
+
+                onError: function (err) {
+                    console.error('Error en el flujo de PayPal:', err);
+                }
+            }).render('#paypal-button-container'); // Tu contenedor para los botones
+
+            // Cerrar modal si se hace clic fuera del contenido
+            document.getElementById('checkout-modal').addEventListener('click', function (event) {
+                if (event.target === this) {
+                    closeCheckoutModal();
+                }
+            });
+
+            // --- Tu script de cookies previo ---
+            document.addEventListener("DOMContentLoaded", function () {
+                const banner = document.getElementById('cookie-banner');
+                if (!localStorage.getItem('cookieConsent')) {
+                    setTimeout(() => {
+                        banner.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+                        banner.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
+                    }, 600);
+                }
+            });
+
+            function dismissCookies(choice) {
+                const banner = document.getElementById('cookie-banner');
+                localStorage.setItem('cookieConsent', choice);
+                banner.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
+                banner.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
             }
         }
 
-        // Cerrar modal si se hace clic fuera del contenido
-        document.getElementById('checkout-modal').addEventListener('click', function (event) {
-            if (event.target === this) {
-                closeCheckoutModal();
-            }
-        });
-
-        // --- Tu script de cookies previo ---
-        document.addEventListener("DOMContentLoaded", function () {
-            const banner = document.getElementById('cookie-banner');
-            if (!localStorage.getItem('cookieConsent')) {
-                setTimeout(() => {
-                    banner.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
-                    banner.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
-                }, 600);
-            }
-        });
-
-        function dismissCookies(choice) {
-            const banner = document.getElementById('cookie-banner');
-            localStorage.setItem('cookieConsent', choice);
-            banner.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
-            banner.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
-        }
     </script>
 </body>
 
