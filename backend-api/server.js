@@ -12,25 +12,16 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-// Orígenes permitidos (incluye entorno local y producción)
-const allowedOrigins = [
-    'https://obsessiondraft-production.up.railway.app',
-    'http://obsessiondraft.shop',
-    'null',
-];
-
+// Permitir peticiones desde tu dominio de Cloudflare y pruebas
 app.use(cors({
-    origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(null, false); // Bloquea suavemente sin tumbar el servidor
-        }
-    },
+    origin: ['https://obsessiondraft.shop', 'https://www.obsessiondraft.shop', 'http://localhost:3000'],
     credentials: true
 }));
 
-// Instancia del cliente PayPal
+app.get('/', (req, res) => {
+    res.send('Backend ObsessionDraft activo');
+});
+
 const client = new Client({
     clientCredentialsAuthCredentials: {
         oAuthClientId: process.env.PAYPAL_CLIENT_ID || '',
@@ -41,13 +32,12 @@ const client = new Client({
 
 const ordersController = new OrdersController(client);
 
-// 1. ENDPOINT PARA CREAR LA ORDEN
 app.post('/create-order', async (req, res) => {
     try {
         const { amount, title } = req.body;
 
         if (!amount) {
-            return res.status(400).json({ error: 'El monto es requerido' });
+            return res.status(400).json({ error: 'Producto no válido o no especificado.' });
         }
 
         const payload = {
@@ -56,7 +46,7 @@ app.post('/create-order', async (req, res) => {
                 {
                     amount: {
                         currencyCode: 'USD',
-                        value: String(amount),
+                        value: String(amount)
                     },
                     description: title || 'Compra en ObsessionDraft'
                 },
@@ -71,7 +61,6 @@ app.post('/create-order', async (req, res) => {
     }
 });
 
-// 2. ENDPOINT PARA CAPTURAR EL PAGO
 app.post('/capture-order', async (req, res) => {
     try {
         const { orderID } = req.body;
