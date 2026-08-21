@@ -238,7 +238,7 @@
 
         function renderPayPalButton() {
             const container = document.getElementById('paypal-button-container');
-            container.innerHTML = ''; // Limpiamos preventivamente
+            container.innerHTML = ''; // Limpieza previa
 
             if (window.paypal) {
                 paypal.Buttons({
@@ -264,7 +264,8 @@
                             })
                             .then(data => {
                                 if (data.error) throw new Error(data.error);
-                                return data.id; // Retorna el ID que PayPal necesita
+                                // Importante: Retornar data.id (el ID generado por PayPal)
+                                return data.id;
                             })
                             .catch(err => {
                                 console.error("Fallo al crear la orden:", err);
