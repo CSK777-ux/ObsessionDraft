@@ -245,7 +245,7 @@
         function renderPayPalButton() {
             paypal.Buttons({
                 createOrder: function () {
-                    return fetch('http://localhost:3000/create-order', {
+                    return fetch('obsessiondraft-production.up.railway.app/create-order', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ productId: selectedProduct })
