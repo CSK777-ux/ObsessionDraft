@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Outfit', sans-serif;
-            background-color: #0f172a;
+            background-color: #1c1c1d;
             color: #f8fafc;
         }
     </style>
@@ -247,17 +247,17 @@
 
             paypal.Buttons({
                 createOrder: function (data, actions) {
-                    // Enviar el carrito actual al backend en Railway
                     return fetch('https://obsessiondraft-production.up.railway.app/create-order', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
+                            // ASEGÚRATE DE QUE LA CLAVE SE LLAME 'cart' Y SEA UN ARREGLO
                             cart: [
                                 {
-                                    name: "Producto Obsession Draft",
-                                    price: "10.00", // Asegúrate de dinaminzar esto con tu carrito real
+                                    name: "Solo Explorer - 1x Astronaut",
+                                    price: "29.99",   // Enviar como string o número con decimales
                                     quantity: 1
                                 }
                             ]
@@ -270,11 +270,11 @@
                             if (orderData.error) {
                                 throw new Error(orderData.error);
                             }
+                            // PayPal necesita recibir exactamente la propiedad 'id' de la orden
                             return orderData.id;
                         })
                         .catch(function (err) {
-                            console.error('Error al obtener el orderID:', err);
-                            alert('No se pudo iniciar el pago: ' + err.message);
+                            console.error('Error al crear la orden:', err);
                         });
                 },
                 onApprove: function (data, actions) {
