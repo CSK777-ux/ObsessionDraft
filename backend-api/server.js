@@ -51,8 +51,9 @@ app.post('/create-order', async (req, res) => {
     try {
         const { cart } = req.body;
 
+        // Si el backend espera propiedades específicas dentro de los items del cart:
         if (!cart || !Array.isArray(cart) || cart.length === 0) {
-            return res.status(400).json({ error: 'El carrito está vacío o el formato es inválido.' });
+            return res.status(400).json({ error: 'Producto no válido o no especificado.' });
         }
 
         // Calcular el total validando los precios en el servidor
@@ -87,7 +88,6 @@ app.post('/create-order', async (req, res) => {
         const { result } = await ordersController.ordersCreate({ body });
 
         return res.status(200).json({ id: result.id });
-
     } catch (error) {
         console.error('Error al crear la orden en PayPal:', error);
 
