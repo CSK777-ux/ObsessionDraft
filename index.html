@@ -194,70 +194,75 @@
     </footer>
 
     <script>
-        let selectedProduct = '';
+        let selectedProduct = { price: '29.99', title: 'Solo Explorer' };
+        const API_URL = 'https://obsessiondraft-production.up.railway.app';
 
-        // Función para abrir el modal suavemente
-        function openCheckoutModal(productId, title, price) {
-            selectedProduct = productId;
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-price').innerText = `$${price} USD - Free Shipping`;
+        function openCheckoutModal(id, title, price) {
+            selectedProduct = { price: String(price), title: title };
+
+            document.getElementById('modal-title').innerText = selectedProduct.title;
+            document.getElementById('modal-price').innerText = `$${selectedProduct.price} USD - Free Shipping`;
 
             const modal = document.getElementById('checkout-modal');
-
-            // 1. Quitamos 'hidden' para que el elemento exista y ocupe espacio
             modal.classList.remove('hidden');
-
-            // 2. Forzamos un reflow (truco para que la transición funcione al cambiar clases de golpe)
             void modal.offsetWidth;
-
-            // 3. Agregamos las clases visibles para iniciar la animación
             modal.classList.remove('opacity-0', 'scale-95');
             modal.classList.add('opacity-100', 'scale-100');
 
-            // 4. Renderizamos el botón
-            document.getElementById('paypal-button-container').innerHTML = '';
             renderPayPalButton();
         }
 
-        // Función para cerrar el modal suavemente
         function closeCheckoutModal() {
             const modal = document.getElementById('checkout-modal');
-
-            // 1. Revertimos a las clases invisibles para iniciar la animación de salida
             modal.classList.remove('opacity-100', 'scale-100');
             modal.classList.add('opacity-0', 'scale-95');
-
-            // 2. Esperamos a que termine la transición (300ms) y ocultamos con 'hidden'
             setTimeout(() => {
                 modal.classList.add('hidden');
+                document.getElementById('paypal-button-container').innerHTML = '';
             }, 300);
         }
 
         function renderPayPalButton() {
-            paypal.Buttons({
-                createOrder: function () {
-                    return fetch('https://obsessiondraft-production.up.railway.app/create-order', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ productId: selectedProduct })
-                    })
-                        .then(res => res.json())
-                        .then(data => data.id);
-                },
-                onApprove: function (data) {
-                    alert('¡Pago exitoso! ID de transacción: ' + data.orderID);
-                    closeCheckoutModal(); // Cierra suavemente tras el pago
-                }
-            }).render('#paypal-button-container');
-        }
+            const container = document.getElementById('paypal-button-container');
+            container.innerHTML = '';
 
-        // Adicional: Cerrar modal si se hace clic fuera del contenido
-        document.getElementById('checkout-modal').addEventListener('click', function (event) {
-            if (event.target === this) {
-                closeCheckoutModal();
+            if (window.paypal) {
+                paypal.Buttons({
+                    createOrder: function () {
+                        return fetch(`${API_URL}/create-order`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ amount: selectedProduct.price })
+                        })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.error) throw new Error(data.error);
+                                return data.id;
+                            });
+                    },
+                    onApprove: function (data) {
+                        return fetch(`${API_URL}/capture-order`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ orderID: data.orderID })
+                        })
+                            .then(res => res.json())
+                            .then(details => {
+                                if (details.error) {
+                                    alert('No se pudo procesar el cobro.');
+                                    return;
+                                }
+                                alert('¡Pago recibido con éxito!');
+                                closeCheckoutModal();
+                            });
+                    },
+                    onError: function (err) {
+                        console.error('Error en PayPal:', err);
+                        alert('Ocurrió un error con el pago.');
+                    }
+                }).render('#paypal-button-container');
             }
-        });
-
+        }
         // --- Tu script de cookies previo ---
         document.addEventListener("DOMContentLoaded", function () {
             const banner = document.getElementById('cookie-banner');
