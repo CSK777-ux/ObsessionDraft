@@ -264,9 +264,9 @@
                             })
                             .then(data => {
                                 if (data.error) throw new Error(data.error);
-                                // Importante: Retornar data.id (el ID generado por PayPal)
-                                return data.id;
+                                return data.id; // <--- OBLIGATORIO: PayPal necesita solo la cadena del ID
                             })
+
                             .catch(err => {
                                 console.error("Fallo al crear la orden:", err);
                                 alert("Error al conectar con la pasarela de pagos.");
