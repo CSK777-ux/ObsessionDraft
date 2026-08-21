@@ -4,84 +4,102 @@ import dotenv from 'dotenv';
 import {
     Client,
     Environment,
-    OrdersController
+    OrdersController,
+    CheckoutPaymentIntent
 } from '@paypal/paypal-server-sdk';
 
 dotenv.config();
 
 const app = express();
-app.use(express.json());
 
-// Permitir peticiones desde tu dominio de Cloudflare y pruebas
+// Configuración de CORS permitiendo solicitudes
 app.use(cors({
-    origin: ['https://obsessiondraft.shop', 'https://www.obsessiondraft.shop', 'https://obsessiondraft-production.up.railway.app'],
-    credentials: true
+    origin: '*',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.get('/', (req, res) => {
-    res.send('Backend ObsessionDraft activo');
-});
+app.use(express.json());
 
-const client = new Client({
+// Verificación de variables de entorno requeridas
+if (!process.env.PAYPAL_CLIENT_ID || !process.env.PAYPAL_CLIENT_SECRET) {
+    console.error('ERROR CRÍTICO: Las variables de entorno PAYPAL_CLIENT_ID y PAYPAL_CLIENT_SECRET son obligatorias.');
+}
+
+// Configuración del cliente de PayPal
+const paypalEnvironment = process.env.PAYPAL_ENV === 'live'
+    ? Environment.Production
+    : Environment.Sandbox;
+
+const paypalClient = new Client({
     clientCredentialsAuthCredentials: {
         oAuthClientId: process.env.PAYPAL_CLIENT_ID || '',
-        oAuthClientSecret: process.env.PAYPAL_CLIENT_SECRET || '',
+        oAuthClientSecret: process.env.PAYPAL_CLIENT_SECRET || ''
     },
-    environment: process.env.PAYPAL_ENV === 'live' ? Environment.Production : Environment.Sandbox,
+    environment: paypalEnvironment
 });
 
-const ordersController = new OrdersController(client);
+const ordersController = new OrdersController(paypalClient);
 
+// Ruta para verificar que el servidor responda correctamente
+app.get('/', (req, res) => {
+    res.json({ status: 'ok', message: 'Servidor de Obsession Draft activo.' });
+});
+
+// Ruta principal para crear la orden de pago
 app.post('/create-order', async (req, res) => {
     try {
-        const { amount, title } = req.body;
+        const { cart } = req.body;
 
-        if (!amount) {
-            return res.status(400).json({ error: 'Producto no válido o no especificado.' });
+        if (!cart || !Array.isArray(cart) || cart.length === 0) {
+            return res.status(400).json({ error: 'El carrito está vacío o el formato es inválido.' });
         }
 
-        const payload = {
-            intent: 'CAPTURE',
+        // Calcular el total validando los precios en el servidor
+        const total = cart.reduce((sum, item) => {
+            const price = parseFloat(item.price);
+            const quantity = parseInt(item.quantity, 10);
+
+            if (isNaN(price) || isNaN(quantity)) {
+                throw new Error(`Valores inválidos en el producto: ${item.name || 'Desconocido'}`);
+            }
+
+            return sum + (price * quantity);
+        }, 0);
+
+        if (total <= 0) {
+            return res.status(400).json({ error: 'El total de la orden debe ser mayor a 0.' });
+        }
+
+        const body = {
+            intent: CheckoutPaymentIntent.Capture,
             purchaseUnits: [
                 {
                     amount: {
                         currencyCode: 'USD',
-                        value: String(amount)
+                        value: total.toFixed(2)
                     },
-                    description: title || 'Compra en ObsessionDraft'
-                },
-            ],
+                    description: 'Compra en Obsession Draft'
+                }
+            ]
         };
 
-        const { result, statusCode } = await ordersController.ordersCreate({ body: payload });
-        res.status(statusCode).json({ id: result.id });
+        const { result } = await ordersController.ordersCreate({ body });
+
+        return res.status(200).json({ id: result.id });
+
     } catch (error) {
-        console.error('Error creando orden:', error);
-        res.status(500).json({ error: error.message || 'Error interno del servidor' });
-    }
-});
+        console.error('Error al crear la orden en PayPal:', error);
 
-app.post('/capture-order', async (req, res) => {
-    try {
-        const { orderID } = req.body;
-
-        if (!orderID) {
-            return res.status(400).json({ error: 'El orderID es requerido' });
-        }
-
-        const { result, statusCode } = await ordersController.ordersCapture({
-            id: orderID,
-            prefer: 'return=representation'
+        // Retornar mensaje explícito del fallo
+        return res.status(500).json({
+            error: 'Error interno al procesar la orden con PayPal.',
+            details: error.message || error
         });
-
-        res.status(statusCode).json(result);
-    } catch (error) {
-        console.error('Error capturando la orden:', error);
-        res.status(500).json({ error: error.message || 'Error interno del servidor' });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Servidor listo en puerto ${PORT}`);
+app.listen(PORT, () => {
+    console.log(`Servidor ejecutándose en el puerto ${PORT}`);
 });

@@ -1,7 +1,7 @@
 {
-  "name": "backend-api",
+  "name": "obsession-draft-backend",
   "version": "1.0.0",
-  "description": "Backend API para ObsessionDraft",
+  "description": "Backend para procesamiento de pagos con PayPal",
   "main": "server.js",
   "type": "module",
   "scripts": {
