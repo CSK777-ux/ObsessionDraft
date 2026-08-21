@@ -246,7 +246,7 @@
                 },
                 createOrder: async function () {
                     try {
-                        const response = await fetch('https://obsessiondraft.shop/create-order', {
+                        const response = await fetch('https://obsessiondraft-production.up.railway.app/create-order', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -271,7 +271,7 @@
 
                 onApprove: async function (data) {
                     try {
-                        const response = await fetch(`${API_BASE_URL}/capture-order`, {
+                        const response = await fetch('https://obsessiondraft-production.up.railway.app/capture-order', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ orderID: data.orderID })
