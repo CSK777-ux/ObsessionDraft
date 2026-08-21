@@ -242,7 +242,6 @@
             if (window.paypal) {
                 paypal.Buttons({
                     createOrder: function () {
-                        // DATO DINÁMICO: Enviamos los datos reales del producto seleccionado
                         return fetch(`${API_BASE_URL}/create-order`, {
                             method: 'POST',
                             headers: {
