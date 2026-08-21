@@ -229,15 +229,32 @@
             if (window.paypal) {
                 paypal.Buttons({
                     createOrder: function () {
-                        return fetch(`${API_URL}/create-order`, {
+                        return fetch('https://obsessiondraft-production.up.railway.app/create-order', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ amount: selectedProduct.price })
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                cart: [
+                                    {
+                                        name: selectedProduct.title,
+                                        price: selectedProduct.price,
+                                        quantity: 1
+                                    }
+                                ]
+                            })
                         })
-                            .then(res => res.json())
+                            .then(res => {
+                                if (!res.ok) return res.json().then(err => { throw new Error(err.error || 'Error en servidor'); });
+                                return res.json();
+                            })
                             .then(data => {
                                 if (data.error) throw new Error(data.error);
-                                return data.id;
+                                return data.id; // Retorna el ID de la orden a PayPal
+                            })
+                            .catch(err => {
+                                console.error("Fallo al crear la orden:", err);
+                                alert(err.message || "Error al conectar con la pasarela de pagos.");
                             });
                     },
                     onApprove: function (data) {
