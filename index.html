@@ -7,7 +7,7 @@
     <title>OD | Astronaut Space Humidifier</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script
-        src="https://www.paypal.com/sdk/js?client-id=BAARBKddGJnnpCiHgEIdyJmkq-OAj8ioYTlCdiLSxjLsiQoy3FJFGIsJ_KEnKQLMxITep1Fu9Sv5K-wBFY&components=buttons"></script>
+        src="https://www.paypal.com/sdk/js?client-id=BAARBKddGJnnpCiHgEIdyJmkq-OAj8ioYTlCdiLSxjLsiQoy3FJFGIsJ_KEnKQLMxITep1Fu9Sv5K-wBFY&currency=USD"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap');
 
@@ -19,42 +19,41 @@
     </style>
 </head>
 
-<body class="leading-relaxed">
-    <div class="fixed inset-0 z-[-1] bg-cover bg-center opacity-30" style="background-image: url('fondo.webp');">
-    </div>
+<body class="leading-relaxed min-h-screen relative overflow-x-hidden">
+    <div class="fixed inset-0 z-[-1] bg-cover bg-center opacity-30" style="background-image: url('fondo.webp');"></div>
+
     <!-- Header Section -->
-    <header class="text-center py-16 px-6">
-        <h1 class="text-4xl md:text-6xl font-black mb-4 z-5">Transform Your Space Into <br><span
-                class="text-indigo-400">Deep Space.</span></h1>
-        <p class="text-slate-400 text-lg z-5">The cutest aesthetic humidifier that doubles as a dreamy night light.</p>
-        <div class="absolute top-1 right-0 transform -translate-y-1 max-w-full h-auto z-1">
-            <img src="./img/astronaut-humidifier.png" alt="Astronaut Humidifier" class="max-w-full h-auto">
+    <header
+        class="relative text-center py-16 px-6 max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+        <div class="text-left z-10 max-w-2xl">
+            <h1 class="text-4xl md:text-6xl font-black mb-4">Transform Your Space Into <br><span
+                    class="text-indigo-400">Deep Space.</span></h1>
+            <p class="text-slate-400 text-lg">The cutest aesthetic humidifier that doubles as a dreamy night light.</p>
+        </div>
+        <div class="relative max-w-xs md:max-w-sm w-full">
+            <img src="./img/astronaut-humidifier.png" alt="Astronaut Humidifier" class="w-full h-auto drop-shadow-2xl">
         </div>
     </header>
 
     <!-- Main Product Section -->
     <section class="max-w-4xl mx-auto px-6 py-12">
-
-        <!-- Bundle Offer Section -->
-
         <div class="text-center mb-12">
             <span
                 class="bg-indigo-500/20 text-indigo-400 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest border border-indigo-500/30">Limited
                 Time Offer</span>
             <h2 class="text-3xl md:text-5xl font-black mt-3 mb-3">The Cosmic Couple Pack</h2>
-            <p class="text-slate-400 text-sm md:text-base">Get the matching Astronaut Humidifier set for your
-                bedroom and living room, or gift one to your special someone.</p>
+            <p class="text-slate-400 text-sm md:text-base">Get the matching Astronaut Humidifier set for your bedroom
+                and living room, or gift one to your special someone.</p>
         </div>
 
         <!-- Pricing Cards Grid -->
         <div class="grid md:grid-cols-2 gap-8 items-center">
-
             <!-- Single Card -->
             <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 shadow-xl relative backdrop-blur-sm">
                 <h3 class="text-xl font-bold mb-2">Solo Explorer</h3>
                 <p class="text-slate-400 text-sm mb-6">1x Astronaut Humidifier (Choose your style)</p>
-                <div class="text-3xl font-black mb-6">$29.99 <span class="text-xs text-slate-500 font-normal">/
-                        Free Shipping</span></div>
+                <div class="text-3xl font-black mb-6">$29.99 <span class="text-xs text-slate-500 font-normal">/ Free
+                        Shipping</span></div>
                 <ul class="space-y-3 text-slate-300 text-sm mb-8">
                     <li class="flex items-center gap-2">✓ 1x Astronaut Unit</li>
                     <li class="flex items-center gap-2">✓ USB Rechargeable Cable</li>
@@ -75,8 +74,8 @@
                 </div>
                 <h3 class="text-xl font-bold mb-2 text-indigo-400">Cosmic Couple Set</h3>
                 <p class="text-slate-300 text-sm mb-6">2x Astronaut Humidifiers (His & Hers)</p>
-                <div class="text-3xl font-black mb-6">$49.99 <span class="text-xs text-slate-400 font-normal">/
-                        Free Shipping</span></div>
+                <div class="text-3xl font-black mb-6">$49.99 <span class="text-xs text-slate-400 font-normal">/ Free
+                        Shipping</span></div>
                 <ul class="space-y-3 text-slate-200 text-sm mb-8">
                     <li class="flex items-center gap-2">✨ 2x Astronaut Units (Mix & Match)</li>
                     <li class="flex items-center gap-2">🚀 Double Mist Efficiency</li>
@@ -87,25 +86,23 @@
                     Claim Couple Offer - $49.99
                 </button>
             </div>
-
         </div>
-
     </section>
+
     <!-- Gallery & Video Section -->
-    <section class="max-w-5xl mx-auto px-12 py-36">
+    <section class="max-w-5xl mx-auto px-6 md:px-12 py-16">
         <div class="text-center mb-12">
             <h2 class="text-3xl md:text-4xl font-bold mb-3">See It In Action</h2>
-            <p class="text-slate-400 text-sm">Discover the Astronaut Humidifier.
-            </p>
+            <p class="text-slate-400 text-sm">Discover the Astronaut Humidifier.</p>
         </div>
         <div class="space-y-8">
             <div class="w-full rounded-3xl overflow-hidden shadow-2xl border border-indigo-500/20 bg-slate-900">
-                <video controls autoplay muted loop class="w-full h-[400px] md:h-[500px] object-cover">
+                <video controls autoplay muted loop class="w-full h-[300px] md:h-[500px] object-cover">
                     <source src="./img/0821.mp4" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
             </div>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div
                     class="rounded-2xl overflow-hidden shadow-lg border border-indigo-500/10 bg-slate-900 aspect-square">
                     <img src="./img/astronaut-detail.jpg" alt="Astronaut detail"
@@ -129,38 +126,40 @@
             </div>
         </div>
     </section>
-    <!-- Modal de Checkout (Ventana Flotante con desenfoque) -->
-    <!-- Modal de Checkout (con animación suave) -->
+
+    <!-- Modal de Checkout -->
     <div id="checkout-modal"
         class="hidden opacity-0 scale-95 transition-all duration-300 ease-out fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-md w-full relative shadow-2xl">
-            <!-- Botón para cerrar la ventana -->
             <button onclick="closeCheckoutModal()"
                 class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl font-bold">&times;</button>
-
             <h3 id="modal-title" class="text-2xl font-black text-white mb-2">Finalizar Compra</h3>
             <p id="modal-price" class="text-indigo-400 font-bold text-xl mb-6">$0.00 USD</p>
-
-            <!-- Contenedor del Botón de PayPal -->
             <div id="paypal-button-container"></div>
         </div>
     </div>
 
-    <!-- Footer Completo y Legal -->
+    <!-- Cookie Banner -->
+    <div id="cookie-banner"
+        class="fixed bottom-4 right-4 max-w-sm bg-slate-900 border border-slate-800 text-white p-5 rounded-2xl shadow-2xl z-50 transition-all duration-500 transform translate-y-20 opacity-0 pointer-events-none">
+        <p class="text-xs text-slate-300 mb-3">Usamos cookies esenciales para procesar tus pagos de forma segura y
+            optimizar tu compra.</p>
+        <div class="flex gap-2">
+            <button onclick="dismissCookies('accepted')"
+                class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition">Aceptar</button>
+            <button onclick="dismissCookies('declined')"
+                class="bg-slate-800 hover:bg-slate-700 text-slate-400 text-xs px-3 py-2 rounded-xl transition">Rechazar</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
     <footer class="bg-slate-950 py-12 px-6 mt-16 border-t border-slate-800">
         <div class="max-w-5xl mx-auto grid md:grid-cols-4 gap-8">
-
-            <!-- About -->
-            <div class="col-span-1 md:col-span-1">
+            <div>
                 <h4 class="text-white font-bold mb-4">AstronautHumidifiers</h4>
-                <p class="text-slate-500 text-xs leading-relaxed">
-                    Bringing aesthetic technology to your home office and bedroom. Quality verified products
-                    shipped
-                    worldwide.
-                </p>
+                <p class="text-slate-500 text-xs leading-relaxed">Bringing aesthetic technology to your home office and
+                    bedroom. Quality verified products shipped worldwide.</p>
             </div>
-
-            <!-- Legal Links -->
             <div>
                 <h4 class="text-white font-bold mb-4">Legal</h4>
                 <ul class="space-y-2 text-slate-500 text-xs">
@@ -170,8 +169,6 @@
                     <li><a href="/refund-policy" class="hover:text-indigo-400">Refund Policy</a></li>
                 </ul>
             </div>
-
-            <!-- Customer Care -->
             <div>
                 <h4 class="text-white font-bold mb-4">Support</h4>
                 <ul class="space-y-2 text-slate-500 text-xs">
@@ -180,8 +177,6 @@
                     <li><a href="/faq" class="hover:text-indigo-400">FAQ</a></li>
                 </ul>
             </div>
-
-            <!-- Payment Icons -->
             <div>
                 <h4 class="text-white font-bold mb-4">Payment Methods</h4>
                 <div class="flex space-x-2">
@@ -191,142 +186,144 @@
                 </div>
             </div>
         </div>
-
-        <!-- Compliance Line -->
         <div class="max-w-5xl mx-auto mt-12 pt-8 border-t border-slate-900 text-center text-slate-600 text-[10px]">
             <p class="mb-2">© 2026 ObsessionDraft. All rights reserved.</p>
-            <p>This site is not part of the Facebook website or Facebook Inc. Additionally, this site is NOT
-                endorsed by
+            <p>This site is not part of the Facebook website or Facebook Inc. Additionally, this site is NOT endorsed by
                 Facebook in any way. FACEBOOK is a trademark of FACEBOOK, Inc.</p>
         </div>
-
     </footer>
-    <div id="cookie-banner" class="hidden fixed bottom-0 w-full bg-gray-900 text-white p-4 z-50">
-        <!-- Contenido del banner -->
-    </div>
-    <script>
-        let selectedProduct = '';
 
-        // Función para abrir el modal suavemente
+    <script>
+        let selectedProduct = { id: '', title: '', price: '' };
+
         function openCheckoutModal(productId, title, price) {
-            selectedProduct = productId;
+            selectedProduct = { id: productId, title: title, price: price };
+
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-price').innerText = `$${price} USD - Free Shipping`;
 
             const modal = document.getElementById('checkout-modal');
-
-            // 1. Quitamos 'hidden' para que el elemento exista y ocupe espacio
             modal.classList.remove('hidden');
 
-            // 2. Forzamos un reflow
+            // Forzar reflow para animación
             void modal.offsetWidth;
 
-            // 3. Agregamos las clases visibles para iniciar la animación
             modal.classList.remove('opacity-0', 'scale-95');
             modal.classList.add('opacity-100', 'scale-100');
 
-            // 4. Renderizamos el botón de forma segura con un pequeño retraso para asegurar el DOM
-            setTimeout(() => {
-                renderPayPalButton();
-            }, 100);
+            renderPayPalButton();
         }
 
-        // Función para cerrar el modal suavemente
         function closeCheckoutModal() {
             const modal = document.getElementById('checkout-modal');
-
-            // 1. Revertimos a las clases invisibles para la animación de salida
             modal.classList.remove('opacity-100', 'scale-100');
             modal.classList.add('opacity-0', 'scale-95');
 
-            // 2. Limpiamos el contenedor del botón de PayPal
-            document.getElementById('paypal-button-container').innerHTML = '';
-
-            // 3. Esperamos a que termine la transición y ocultamos con 'hidden'
             setTimeout(() => {
                 modal.classList.add('hidden');
+                document.getElementById('paypal-button-container').innerHTML = '';
             }, 300);
         }
 
         function renderPayPalButton() {
             const container = document.getElementById('paypal-button-container');
-            container.innerHTML = ''; // Limpiamos preventivamente
+            container.innerHTML = '';
 
-            // Determinar si estamos probando localmente o en producción en Railway
-            const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                ? 'http://localhost:3000'
-                : 'https://obsessiondraft-production.up.railway.app';
+            // Apunta de forma directa y fija a tu backend en producción
+            const API_BASE_URL = 'https://obsessiondraft-production.up.railway.app';
+
+            if (typeof paypal === 'undefined') {
+                container.innerHTML = '<p class="text-red-400 text-sm">Error al cargar el SDK de PayPal. Revisa la conexión o las llaves.</p>';
+                return;
+            }
 
             paypal.Buttons({
-                createOrder: function () {
-                    return fetch(`${API_BASE_URL}/create-order`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            amount: '29.99', // Ajusta dinámicamente según el producto seleccionado
-                            title: 'Solo Explorer - 1x Astronaut'
-                        })
-                    })
-                        .then(res => {
-                            if (!res.ok) throw new Error('Error al generar la orden en el servidor');
-                            return res.json();
-                        })
-                        .then(data => data.id);
+                style: {
+                    layout: 'vertical',
+                    color: 'gold',
+                    shape: 'rect',
+                    label: 'paypal'
+                },
+                createOrder: async function () {
+                    try {
+                        const response = await fetch(`${API_BASE_URL}/create-order`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                amount: selectedProduct.price,
+                                title: selectedProduct.title
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(data.error || 'Error creando la orden');
+                        }
+
+                        return data.id;
+                    } catch (err) {
+                        console.error('Error en createOrder:', err);
+                        alert(`No se pudo iniciar el pago: ${err.message}`);
+                        throw err;
+                    }
                 },
 
-                onApprove: function (data) {
-                    // Este paso es EL QUE FALTABA: cobra el dinero una vez aprobado por el cliente
-                    return fetch(`${API_BASE_URL}/capture-order`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ orderID: data.orderID })
-                    })
-                        .then(res => res.json())
-                        .then(details => {
-                            if (details.status === 'COMPLETED') {
-                                alert('¡Pago completado con éxito! Gracias por tu compra.');
-                                // Aquí cierras el modal o rediriges a una página de agradecimiento
-                            } else {
-                                alert('El pago no pudo procesarse completamente.');
-                            }
-                        })
-                        .catch(err => {
-                            console.error('Error al capturar la orden:', err);
-                            alert('Ocurrió un error al procesar el pago.');
+                onApprove: async function (data) {
+                    try {
+                        const response = await fetch(`${API_BASE_URL}/capture-order`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ orderID: data.orderID })
                         });
+
+                        const details = await response.json();
+
+                        if (details.status === 'COMPLETED') {
+                            alert('¡Pago completado con éxito! Gracias por tu compra.');
+                            closeCheckoutModal();
+                        } else {
+                            alert('El pago no pudo ser completado por el proveedor.');
+                        }
+                    } catch (err) {
+                        console.error('Error en captureOrder:', err);
+                        alert('Error crítico al procesar la captura del dinero.');
+                    }
                 },
 
                 onError: function (err) {
-                    console.error('Error en el flujo de PayPal:', err);
+                    console.error('Error interno del SDK de PayPal:', err);
                 }
-            }).render('#paypal-button-container'); // Tu contenedor para los botones
-
-            // Cerrar modal si se hace clic fuera del contenido
-            document.getElementById('checkout-modal').addEventListener('click', function (event) {
-                if (event.target === this) {
-                    closeCheckoutModal();
-                }
-            });
-
-            // --- Tu script de cookies previo ---
-            document.addEventListener("DOMContentLoaded", function () {
-                const banner = document.getElementById('cookie-banner');
-                if (!localStorage.getItem('cookieConsent')) {
-                    setTimeout(() => {
-                        banner.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
-                        banner.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
-                    }, 600);
-                }
-            });
-
-            function dismissCookies(choice) {
-                const banner = document.getElementById('cookie-banner');
-                localStorage.setItem('cookieConsent', choice);
-                banner.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
-                banner.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
-            }
+            }).render('#paypal-button-container');
         }
 
+        // Prevenir el cierre cuando se hace clic DENTRO del contenido del modal
+        document.querySelector('#checkout-modal > div').addEventListener('click', function (event) {
+            event.stopPropagation();
+        });
+
+        // Cerrar solo si se hace clic afuera en el fondo oscuro
+        document.getElementById('checkout-modal').addEventListener('click', function () {
+            closeCheckoutModal();
+        });
+
+        // Banner de Cookies
+        document.addEventListener("DOMContentLoaded", function () {
+            const banner = document.getElementById('cookie-banner');
+            if (banner && !localStorage.getItem('cookieConsent')) {
+                setTimeout(() => {
+                    banner.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+                    banner.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
+                }, 600);
+            }
+        });
+
+        function dismissCookies(choice) {
+            const banner = document.getElementById('cookie-banner');
+            localStorage.setItem('cookieConsent', choice);
+            banner.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
+            banner.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+        }
     </script>
 </body>
 
