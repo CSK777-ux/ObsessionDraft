@@ -14,7 +14,7 @@ app.use(express.json());
 
 // Permitir peticiones desde tu dominio de Cloudflare y pruebas
 app.use(cors({
-    origin: ['https://obsessiondraft.shop', 'https://www.obsessiondraft.shop', 'http://localhost:3000'],
+    origin: ['https://obsessiondraft.shop', 'https://www.obsessiondraft.shop', 'https://obsessiondraft-production.up.railway.app'],
     credentials: true
 }));
 
