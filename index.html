@@ -194,22 +194,21 @@
     </footer>
 
     <script>
-        let selectedProduct = { id: '', title: '', price: '' };
+        let selectedProduct = { id: 'solo', title: 'Solo Explorer - 1x Astronaut', price: '29.99' };
 
         function openCheckoutModal(productId, title, price) {
-            selectedProduct = { id: productId, title: title, price: price };
+            // Si no recibe precio, usa '29.99' como respaldo para que no falle
+            selectedProduct = {
+                id: productId || 'solo',
+                title: title || 'Solo Explorer - 1x Astronaut',
+                price: String(price || '29.99')
+            };
 
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-price').innerText = `$${price} USD - Free Shipping`;
+            document.getElementById('modal-title').innerText = selectedProduct.title;
+            document.getElementById('modal-price').innerText = `$${selectedProduct.price} USD - Free Shipping`;
 
             const modal = document.getElementById('checkout-modal');
             modal.classList.remove('hidden');
-
-            // Forzar reflow para animación
-            void modal.offsetWidth;
-
-            modal.classList.remove('opacity-0', 'scale-95');
-            modal.classList.add('opacity-100', 'scale-100');
 
             renderPayPalButton();
         }
