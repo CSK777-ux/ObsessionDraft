@@ -194,10 +194,17 @@
     </footer>
 
     <script>
-        let selectedProduct = { id: 'solo', title: 'Solo Explorer - 1x Astronaut', price: '29.99' };
+        // Estado global del producto seleccionado (valores por defecto de respaldo)
+        let selectedProduct = {
+            id: 'solo',
+            title: 'Solo Explorer - 1x Astronaut',
+            price: '29.99'
+        };
+
+        const API_BASE_URL = 'https://obsessiondraft-production.up.railway.app';
 
         function openCheckoutModal(productId, title, price) {
-            // Si no recibe precio, usa '29.99' como respaldo para que no falle
+            // Asignación explícita para evitar valores vacíos
             selectedProduct = {
                 id: productId || 'solo',
                 title: title || 'Solo Explorer - 1x Astronaut',
@@ -209,6 +216,11 @@
 
             const modal = document.getElementById('checkout-modal');
             modal.classList.remove('hidden');
+
+            void modal.offsetWidth; // Forzar reflow de CSS
+
+            modal.classList.remove('opacity-0', 'scale-95');
+            modal.classList.add('opacity-100', 'scale-100');
 
             renderPayPalButton();
         }
@@ -228,11 +240,8 @@
             const container = document.getElementById('paypal-button-container');
             container.innerHTML = '';
 
-            // Apunta de forma directa y fija a tu backend en producción
-            const API_BASE_URL = 'https://obsessiondraft-production.up.railway.app';
-
             if (typeof paypal === 'undefined') {
-                container.innerHTML = '<p class="text-red-400 text-sm">Error al cargar el SDK de PayPal. Revisa la conexión o las llaves.</p>';
+                container.innerHTML = '<p class="text-red-400 text-sm">Error al cargar el SDK de PayPal.</p>';
                 return;
             }
 
@@ -245,7 +254,7 @@
                 },
                 createOrder: async function () {
                     try {
-                        const response = await fetch('https://obsessiondraft-production.up.railway.app/create-order', {
+                        const response = await fetch(`${API_BASE_URL}/create-order`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -270,7 +279,7 @@
 
                 onApprove: async function (data) {
                     try {
-                        const response = await fetch('https://obsessiondraft-production.up.railway.app/capture-order', {
+                        const response = await fetch(`${API_BASE_URL}/capture-order`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ orderID: data.orderID })
@@ -282,28 +291,35 @@
                             alert('¡Pago completado con éxito! Gracias por tu compra.');
                             closeCheckoutModal();
                         } else {
-                            alert('El pago no pudo ser completado por el proveedor.');
+                            alert('El pago no pudo ser completado.');
                         }
                     } catch (err) {
                         console.error('Error en captureOrder:', err);
-                        alert('Error crítico al procesar la captura del dinero.');
+                        alert('Error crítico al capturar el pago.');
                     }
                 },
 
                 onError: function (err) {
-                    console.error('Error interno del SDK de PayPal:', err);
+                    console.error('Error del SDK de PayPal:', err);
                 }
             }).render('#paypal-button-container');
         }
 
-        // Prevenir el cierre cuando se hace clic DENTRO del contenido del modal
-        document.querySelector('#checkout-modal > div').addEventListener('click', function (event) {
-            event.stopPropagation();
-        });
+        // Prevenir que el modal se cierre al hacer clic adentro del cuadro blanco/oscuro
+        document.addEventListener("DOMContentLoaded", function () {
+            const modalContainer = document.querySelector('#checkout-modal > div');
+            if (modalContainer) {
+                modalContainer.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                });
+            }
 
-        // Cerrar solo si se hace clic afuera en el fondo oscuro
-        document.getElementById('checkout-modal').addEventListener('click', function () {
-            closeCheckoutModal();
+            const checkoutModal = document.getElementById('checkout-modal');
+            if (checkoutModal) {
+                checkoutModal.addEventListener('click', function () {
+                    closeCheckoutModal();
+                });
+            }
         });
 
         // Banner de Cookies
