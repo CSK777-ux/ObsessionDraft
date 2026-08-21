@@ -238,56 +238,48 @@
 
         function renderPayPalButton() {
             const container = document.getElementById('paypal-button-container');
-            container.innerHTML = '';
+            container.innerHTML = ''; // Limpiamos preventivamente
 
-            if (typeof paypal === 'undefined') {
-                container.innerHTML = '<p class="text-red-400 text-sm">Error al cargar el SDK de PayPal.</p>';
-                return;
+            if (window.paypal) {
+                paypal.Buttons({
+                    createOrder: function () {
+                        return fetch('https://obsessiondraft-production.up.railway.app/create-order', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                cart: [
+                                    {
+                                        name: "Solo Explorer - 1x Astronaut",
+                                        price: "29.99",
+                                        quantity: 1
+                                    }
+                                ]
+                            })
+                        })
+                            .then(res => {
+                                if (!res.ok) throw new Error('Error en el servidor: ' + res.status);
+                                return res.json();
+                            })
+                            .then(data => {
+                                if (data.error) throw new Error(data.error);
+                                return data.id; // Retorna el ID que PayPal necesita
+                            })
+                            .catch(err => {
+                                console.error("Fallo al crear la orden:", err);
+                                alert("Error al conectar con la pasarela de pagos.");
+                            });
+                    },
+                    onApprove: function (data) {
+                        alert('¡Pago exitoso! ID de transacción: ' + data.orderID);
+                        closeCheckoutModal();
+                    },
+                    onError: function (err) {
+                        console.error("Error en el flujo de PayPal:", err);
+                    }
+                }).render('#paypal-button-container');
             }
-
-            paypal.Buttons({
-                createOrder: function (data, actions) {
-                    return fetch('https://obsessiondraft-production.up.railway.app/create-order', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            // ASEGÚRATE DE QUE LA CLAVE SE LLAME 'cart' Y SEA UN ARREGLO
-                            cart: [
-                                {
-                                    name: "Solo Explorer - 1x Astronaut",
-                                    price: "29.99",   // Enviar como string o número con decimales
-                                    quantity: 1
-                                }
-                            ]
-                        })
-                    })
-                        .then(function (res) {
-                            return res.json();
-                        })
-                        .then(function (orderData) {
-                            if (orderData.error) {
-                                throw new Error(orderData.error);
-                            }
-                            // PayPal necesita recibir exactamente la propiedad 'id' de la orden
-                            return orderData.id;
-                        })
-                        .catch(function (err) {
-                            console.error('Error al crear la orden:', err);
-                        });
-                },
-                onApprove: function (data, actions) {
-                    return actions.order.capture().then(function (details) {
-                        alert('Pago completado con éxito por ' + details.payer.name.given_name);
-                    });
-                },
-
-                onError: function (err) {
-                    console.error('Error en el flujo de PayPal:', err);
-                    alert('Ocurrió un error con el botón de pago de PayPal.');
-                }
-            }).render('#paypal-button-container');
         }
 
         // Prevenir que el modal se cierre al hacer clic adentro del cuadro blanco/oscuro
