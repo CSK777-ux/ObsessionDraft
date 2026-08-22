@@ -288,10 +288,9 @@
             const modal = document.getElementById('checkout-modal');
             if (!modal) return;
 
-            // Se obtiene la referencia a la tarjeta interna
+            // LÍNEA CLAVE: Definir la variable card
             const card = modal.querySelector('.id-modal-card');
 
-            // Animación suave de salida
             modal.classList.remove('opacity-100');
             modal.classList.add('opacity-0', 'pointer-events-none');
 
@@ -300,7 +299,6 @@
                 card.classList.add('scale-95');
             }
 
-            // Limpiar el contenedor del botón tras la animación
             setTimeout(() => {
                 const container = document.getElementById('paypal-button-container');
                 if (container) container.innerHTML = '';
