@@ -15,7 +15,7 @@ const { PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET, PAYPAL_BASE_URL, PORT } = proces
 
 // Función para obtener el Access Token de PayPal
 async function getAccessToken() {
-    const auth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`).toString('base64');
+    const auth = Buffer.from(`${PAYPAL_CLIENT_ID.trim()}:${PAYPAL_CLIENT_SECRET.trim()}`).toString('base64');
 
     const response = await fetch(`${PAYPAL_BASE_URL}/v1/oauth2/token`, {
         method: 'POST',
@@ -26,7 +26,14 @@ async function getAccessToken() {
         },
     });
 
-    const data = await response.json();
+    const text = await response.text();
+
+    if (!response.ok) {
+        console.error('[PAYPAL AUTH ERROR] Status:', response.status, 'Body:', text);
+        throw new Error(`Error de autenticación con PayPal: ${text}`);
+    }
+
+    const data = JSON.parse(text);
     return data.access_token;
 }
 
