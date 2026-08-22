@@ -6,7 +6,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-    origin: '*', // O coloca 'https://obsessiondraft.shop'
+    origin: 'https://obsessiondraft.shop', // O coloca 'https://obsessiondraft.shop'
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -117,6 +117,6 @@ app.post('/api/capture-paypal-order', async (req, res) => {
     }
 });
 
-app.listen(PORT || 3000, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT || 3000}`);
+app.listen(PORT || 8080, () => {
+    console.log(`Servidor corriendo en el puerto ${PORT || 8080}`);
 });
