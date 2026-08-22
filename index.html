@@ -7,7 +7,7 @@
     <title>OD | Astronaut Space Humidifier</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script
-        src="https://www.paypal.com/sdk/js?client-id=BAARBKddGJnnpCiHgEIdyJmkq-OAj8ioYTlCdiLSxjLsiQoy3FJFGIsJ_KEnKQLMxITep1Fu9Sv5K-wBFY&currency=USD"></script>
+        src="https://www.paypal.com/sdk/js?client-id=AXB1UTnx3q1TjBWnI7YqDrhbBCx9dUwZa4OmaXkTxjdg1zEmozRjrcSLbO145zfyFwjPRX-KdigIkSVm&currency=USD"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap');
 
@@ -127,14 +127,24 @@
         </div>
     </section>
 
-    <!-- Modal de Checkout -->
-    <div id="checkout-modal"
-        class="hidden opacity-0 scale-95 transition-all duration-300 ease-out fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 max-w-md w-full relative shadow-2xl">
+    <!-- Modal con transición de opacidad y escala -->
+    <div id="checkout-modal" onclick="closeCheckoutModal()"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 opacity-0 pointer-events-none transition-all duration-300 ease-out">
+
+        <!-- Tarjeta interna: event.stopPropagation() evita que se cierre al hacer clic adentro -->
+        <div onclick="event.stopPropagation()"
+            class="relative w-full max-w-md rounded-2xl bg-slate-900 p-6 shadow-2xl border border-slate-800 transform scale-95 transition-all duration-300 id-modal-card">
+
+            <!-- Botón de cerrar (X) -->
             <button onclick="closeCheckoutModal()"
-                class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl font-bold">&times;</button>
-            <h3 id="modal-title" class="text-2xl font-black text-white mb-2">Finalizar Compra</h3>
-            <p id="modal-price" class="text-indigo-400 font-bold text-xl mb-6">$0.00 USD</p>
+                class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl font-bold p-1">
+                &times;
+            </button>
+
+            <!-- Contenido -->
+            <h3 id="modal-title" class="text-xl font-bold text-white mb-1"></h3>
+            <p id="modal-price" class="text-indigo-400 font-semibold mb-6"></p>
+
             <div id="paypal-button-container"></div>
         </div>
     </div>
@@ -192,110 +202,99 @@
                 Facebook in any way. FACEBOOK is a trademark of FACEBOOK, Inc.</p>
         </div>
     </footer>
-
+    <script
+        src="https://www.paypal.com/sdk/js?client-id=AXB1UTnx3q1TjBWnI7YqDrhbBCx9dUwZa4OmaXkTxjdg1zEmozRjrcSLbO145zfyFwjPRX-KdigIkSVm&currency=USD"></script>
     <script>
-        let selectedProduct = { price: '29.99', title: 'Solo Explorer' };
-        const API_URL = 'https://obsessiondraft-production.up.railway.app';
+        let selectedPlanId = null;
 
-        function openCheckoutModal(id, title, price) {
-            selectedProduct = { price: String(price), title: title };
+        // Mapa de nombres y precios solo para actualizar el texto visual del modal
+        const planDetails = {
+            solo: { title: 'Solo Explorer - 1x Astronaut', price: '$29.99 USD' },
+            couple: { title: 'Cosmic Couple - 2x Astronauts', price: '$49.99 USD' }
+        };
 
-            document.getElementById('modal-title').innerText = selectedProduct.title;
-            document.getElementById('modal-price').innerText = `$${selectedProduct.price} USD - Free Shipping`;
+        function openCheckoutModal(planId, planName, price) {
+            selectedPlanId = planId;
 
+            // 1. Actualizar textos visuales en el modal
+            const details = planDetails[planId] || { title: planName, price: `$${price} USD` };
+            document.getElementById('modal-title').innerText = details.title;
+            document.getElementById('modal-price').innerText = details.price;
+
+            // 2. Mostrar el modal quitando las clases de ocultar
             const modal = document.getElementById('checkout-modal');
-            modal.classList.remove('hidden');
-            void modal.offsetWidth;
-            modal.classList.remove('opacity-0', 'scale-95');
-            modal.classList.add('opacity-100', 'scale-100');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.classList.add('opacity-100');
 
-            renderPayPalButton();
+            if (card) {
+                card.classList.remove('scale-95');
+                card.classList.add('scale-100');
+            }
         }
+
+        // 3. Limpiar el contenedor de PayPal para no duplicar botones
+        const buttonContainer = document.getElementById('paypal-button-container');
+        buttonContainer.innerHTML = '';
+
+        // 4. Renderizar el botón dinámico de PayPal
+        paypal.Buttons({
+            createOrder: async () => {
+                try {
+                    const response = await fetch("http://localhost:3000/api/create-paypal-order", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ planId: selectedPlanId })
+                    });
+
+                    const order = await response.json();
+
+                    // Validar si la respuesta del backend fue exitosa y tiene ID
+                    if (!response.ok || !order.id) {
+                        console.error("Error devuelto por el servidor:", order);
+                        throw new Error(order.error || "No se pudo obtener el Order ID de PayPal");
+                    }
+
+                    return order.id; // Retorna el ID solo si es válido
+                } catch (err) {
+                    console.error("Error al generar la orden:", err);
+                    alert("Ocurrió un error al iniciar el pago. Revisa la consola.");
+                }
+            },
+            onApprove: async (data) => {
+                try {
+                    const response = await fetch("http://localhost:3000/api/capture-paypal-order", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ orderID: data.orderID })
+                    });
+
+                    const captureData = await response.json();
+
+                    if (captureData.status === "COMPLETED") {
+                        setTimeout(() => {
+                            alert("¡Pago realizado con éxito!");
+                            closeCheckoutModal();
+                        }, 500);
+                    } else {
+                        alert("No se pudo completar el pago.");
+                    }
+                } catch (err) {
+                    console.error("Error al capturar el pago:", err);
+                }
+            }
+        }).render('#paypal-button-container');
 
         function closeCheckoutModal() {
             const modal = document.getElementById('checkout-modal');
-            modal.classList.remove('opacity-100', 'scale-100');
-            modal.classList.add('opacity-0', 'scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                document.getElementById('paypal-button-container').innerHTML = '';
-            }, 300);
-        }
+            modal.classList.remove('opacity-100');
+            modal.classList.add('opacity-0', 'pointer-events-none');
 
-        function renderPayPalButton() {
-            const container = document.getElementById('paypal-button-container');
-            container.innerHTML = '';
-
-            if (window.paypal) {
-                paypal.Buttons({
-                    createOrder: function () {
-                        return fetch('https://obsessiondraft-production.up.railway.app/create-order', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                cart: [
-                                    {
-                                        name: selectedProduct.title,
-                                        price: selectedProduct.price,
-                                        quantity: 1
-                                    }
-                                ]
-                            })
-                        })
-                            .then(res => {
-                                if (!res.ok) return res.json().then(err => { throw new Error(err.error || 'Error en servidor'); });
-                                return res.json();
-                            })
-                            .then(data => {
-                                if (data.error) throw new Error(data.error);
-                                return data.id; // Retorna el ID de la orden a PayPal
-                            })
-                            .catch(err => {
-                                console.error("Fallo al crear la orden:", err);
-                                alert(err.message || "Error al conectar con la pasarela de pagos.");
-                            });
-                    },
-                    onApprove: function (data) {
-                        return fetch(`${API_URL}/capture-order`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ orderID: data.orderID })
-                        })
-                            .then(res => res.json())
-                            .then(details => {
-                                if (details.error) {
-                                    alert('No se pudo procesar el cobro.');
-                                    return;
-                                }
-                                alert('¡Pago recibido con éxito!');
-                                closeCheckoutModal();
-                            });
-                    },
-                    onError: function (err) {
-                        console.error('Error en PayPal:', err);
-                        alert('Ocurrió un error con el pago.');
-                    }
-                }).render('#paypal-button-container');
+            if (card) {
+                card.classList.remove('scale-100');
+                card.classList.add('scale-95');
             }
-        }
-        // --- Tu script de cookies previo ---
-        document.addEventListener("DOMContentLoaded", function () {
-            const banner = document.getElementById('cookie-banner');
-            if (!localStorage.getItem('cookieConsent')) {
-                setTimeout(() => {
-                    banner.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
-                    banner.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
-                }, 600);
-            }
-        });
-
-        function dismissCookies(choice) {
-            const banner = document.getElementById('cookie-banner');
-            localStorage.setItem('cookieConsent', choice);
-            banner.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
-            banner.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            // Limpiar el contenedor del botón al cerrar
+            document.getElementById('paypal-button-container').innerHTML = '';
         }
     </script>
 </body>
