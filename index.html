@@ -240,7 +240,7 @@
         paypal.Buttons({
             createOrder: async () => {
                 try {
-                    const response = await fetch("http://localhost:3000/api/create-paypal-order", {
+                    const response = await fetch("https://obsessiondraft-production.up.railway.app/api/create-paypal-order", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ planId: selectedPlanId })
@@ -262,7 +262,7 @@
             },
             onApprove: async (data) => {
                 try {
-                    const response = await fetch("http://localhost:3000/api/capture-paypal-order", {
+                    const response = await fetch("https://obsessiondraft-production.up.railway.app/api/capture-paypal-order", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ orderID: data.orderID })
